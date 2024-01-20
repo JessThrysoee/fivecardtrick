@@ -1,542 +1,460 @@
+const ranks = ["ACE", "2", "3", "4", "5", "6", "7", "8", "9", "10", "JACK", "QUEEN", "KING"];
+const suites = ["DIAMONDS", "HEARTS", "SPADES", "CLUBS"];
+const suitesChars = ["♦", "♥", "♠", "♣"];
+const ternary = ["L", "M", "H"];
 
-
-var ranks = ['ACE', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'JACK', 'QUEEN', 'KING'];
-var suites = ['DIAMONDS', 'HEARTS', 'SPADES', 'CLUBS'];
-var suitesChars = ['♦', '♥', '♠', '♣'];
-var ternary = ['L', 'M', 'H'];
-
-
-function createCard(suite, rank) {
-   return {
-      suite: suite,
-      suiteChar: suiteChar(suite),
-      suiteOrdinal: suites.indexOf(suite) + 1,
-      suiteColor: suiteColor(suite),
-      rank: rank,
-      rankOrdinal: ranks.indexOf(rank) + 1,
-      string: suiteChar(suite) + rankChar(rank),
-      html: '<span style="color:' + suiteColor(suite) + '">' + suiteChar(suite) + '</span>' + rankChar(rank)
-   };
-}
-
+const createCard = (suite, rank) => ({
+    suite: suite,
+    suiteChar: suiteChar(suite),
+    suiteOrdinal: suites.indexOf(suite) + 1,
+    suiteColor: suiteColor(suite),
+    rank: rank,
+    rankOrdinal: ranks.indexOf(rank) + 1,
+    string: suiteChar(suite) + rankChar(rank),
+    html: `<span style="color:${suiteColor(suite)}">${suiteChar(suite)}</span>${rankChar(rank)}`,
+});
 
 function rankChar(rank) {
-   return ['ACE', 'JACK', 'QUEEN', 'KING'].indexOf(rank) != -1 ? rank.charAt(0) : rank;
+    return ["ACE", "JACK", "QUEEN", "KING"].indexOf(rank) != -1 ? rank.charAt(0) : rank;
 }
-
 
 function suiteChar(suite) {
-   return suitesChars[suites.indexOf(suite)];
+    return suitesChars[suites.indexOf(suite)];
 }
-
 
 function suiteColor(suite) {
-   return ['HEARTS', 'DIAMONDS'].indexOf(suite) != -1 ? 'red' : 'black';
+    return ["HEARTS", "DIAMONDS"].indexOf(suite) != -1 ? "red" : "black";
 }
-
 
 function compareRanks(card1, card2) {
-   if (card1.rankOrdinal < card2.rankOrdinal) return -1;
-   if (card1.rankOrdinal > card2.rankOrdinal) return 1;
-   return 0;
+    if (card1.rankOrdinal < card2.rankOrdinal) return -1;
+    if (card1.rankOrdinal > card2.rankOrdinal) return 1;
+    return 0;
 }
-
 
 function compareSuites(card1, card2) {
-   if (card1.suiteOrdinal < card2.suiteOrdinal) return -1;
-   if (card1.suiteOrdinal > card2.suiteOrdinal) return 1;
-   return 0;
+    if (card1.suiteOrdinal < card2.suiteOrdinal) return -1;
+    if (card1.suiteOrdinal > card2.suiteOrdinal) return 1;
+    return 0;
 }
-
 
 function compareCards(card1, card2) {
-   var order = compareRanks(card1, card2);
-   if (order !== 0) {
-      return order;
-   }
-   return compareSuites(card1, card2);
+    const order = compareRanks(card1, card2);
+    if (order !== 0) {
+        return order;
+    }
+    return compareSuites(card1, card2);
 }
-
 
 // { card[][] }
-function deckGroupedBySuite() {
-   return suites.map(function(suite) {
-      return ranks.map(function(rank) {
-         return createCard(suite, rank);
-      });
-   });
-}
-
-
-// { suite:card[] } -> card[]
-function flatMap(arrayOfCards) {
-   return [].concat.apply([], arrayOfCards);
-}
-
+const deckGroupedBySuite = () => suites.map((suite) => ranks.map((rank) => createCard(suite, rank)));
 
 // card[] -> { suite:card[] }
 function groupBySuite(arrayOfCards) {
-   var cards = {};
+    const cards = {};
 
-   arrayOfCards.forEach(function(card) {
-      if (!cards[card.suite]) {
-         cards[card.suite] = [];
-      }
-      cards[card.suite].push(card);
-   });
+    arrayOfCards.forEach((card) => {
+        if (!cards[card.suite]) {
+            cards[card.suite] = [];
+        }
+        cards[card.suite].push(card);
+    });
 
-   return cards;
+    return cards;
 }
-
 
 // { suite:card[] } -> card[][]
-function arrayOfArraysOfCard(objectOfCards) {
-   return Object.keys(objectOfCards).map(function(key) {
-      return objectOfCards[key];
-   });
-}
+const arrayOfArraysOfCard = (objectOfCards) => Object.keys(objectOfCards).map((key) => objectOfCards[key]);
 
-
-function random(min, max) {
-   return Math.floor(Math.random() * (max - min)) + min;
-}
-
+const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 
 function pickRandomCards(arrayOfCards, numberOfPicks) {
-   var index;
-   var picks = [];
+    const picks = [];
 
-   var cards = arrayOfCards.slice(0);
-   var numberOfCards = cards.length;
+    const cards = arrayOfCards.slice(0);
+    const numberOfCards = cards.length;
 
-   for (var i = numberOfCards; i > numberOfCards - numberOfPicks; --i) {
-      index = random(0, i);
+    for (let i = numberOfCards; i > numberOfCards - numberOfPicks; --i) {
+        const index = random(0, i);
 
-      picks.push(cards[index]);
-      cards.splice(index, 1);
-   }
+        picks.push(cards[index]);
+        cards.splice(index, 1);
+    }
 
-   return picks;
+    return picks;
 }
-
 
 function removeCardPredicate(card) {
-   return function(c) {
-      return (c.suite == card.suite && c.rank == card.rank) != true;
-   };
+    return (c) => (c.suite == card.suite && c.rank == card.rank) != true;
 }
-
-
 
 function chooseFirstTwoCards(fiveRandomCards) {
-   var fiveRandomCardsGroupBySuite = arrayOfArraysOfCard(groupBySuite(fiveRandomCards));
+    const fiveRandomCardsGroupBySuite = arrayOfArraysOfCard(groupBySuite(fiveRandomCards));
 
-   var suitesWithMoreThanOneCard = fiveRandomCardsGroupBySuite.filter(function(arr) {
-      return arr.length > 1;
-   });
+    const suitesWithMoreThanOneCard = fiveRandomCardsGroupBySuite.filter((arr) => arr.length > 1);
 
-   var randomIndex = random(0, suitesWithMoreThanOneCard.length);
-   var setOfMoreThanOneCard = suitesWithMoreThanOneCard[randomIndex];
+    const randomIndex = random(0, suitesWithMoreThanOneCard.length);
+    const setOfMoreThanOneCard = suitesWithMoreThanOneCard[randomIndex];
 
-   var usingCards = pickRandomCards(setOfMoreThanOneCard, 2);
+    const usingCards = pickRandomCards(setOfMoreThanOneCard, 2);
 
-   var firstCard = usingCards[0];
-   var secondCard = usingCards[1];
+    let firstCard = usingCards[0];
+    let secondCard = usingCards[1];
 
-   var offset = (13 + secondCard.rankOrdinal - firstCard.rankOrdinal) % 13;
+    let offset = (13 + secondCard.rankOrdinal - firstCard.rankOrdinal) % 13;
 
-   if (offset > 6) {
-      // offset too large, swap cards
-      firstCard = usingCards[1];
-      secondCard = usingCards[0];
-      offset = (13 + secondCard.rankOrdinal - firstCard.rankOrdinal) % 13;
-   }
+    if (offset > 6) {
+        // offset too large, swap cards
+        firstCard = usingCards[1];
+        secondCard = usingCards[0];
+        offset = (13 + secondCard.rankOrdinal - firstCard.rankOrdinal) % 13;
+    }
 
-   return {
-      offset: offset,
-      faceUp: firstCard,
-      faceDown: secondCard
-   };
+    return {
+        offset: offset,
+        faceUp: firstCard,
+        faceDown: secondCard,
+    };
 }
 
+const addTernaryCardsFn = (hand, remainingThreeCards) => (idx0, idx1, idx2) => {
+    hand.ternary.push(ternary[idx0]);
+    hand.faceUp.push(remainingThreeCards[idx0]);
 
-function addTernaryCardsFn(hand, remainingThreeCards) {
-   return function(idx0, idx1, idx2) {
-      hand.ternary.push(ternary[idx0]);
-      hand.faceUp.push(remainingThreeCards[idx0]);
+    hand.ternary.push(ternary[idx1]);
+    hand.faceUp.push(remainingThreeCards[idx1]);
 
-      hand.ternary.push(ternary[idx1]);
-      hand.faceUp.push(remainingThreeCards[idx1]);
-
-      hand.ternary.push(ternary[idx2]);
-      hand.faceUp.push(remainingThreeCards[idx2]);
-   };
-}
-
+    hand.ternary.push(ternary[idx2]);
+    hand.faceUp.push(remainingThreeCards[idx2]);
+};
 
 function drawHand() {
-   var deck = flatMap(deckGroupedBySuite());
+    const deck = deckGroupedBySuite().flat();
 
-   var fiveRandomCards = pickRandomCards(deck, 5);
+    const fiveRandomCards = pickRandomCards(deck, 5);
 
-   var firstTwoCards = chooseFirstTwoCards(fiveRandomCards);
+    const firstTwoCards = chooseFirstTwoCards(fiveRandomCards);
 
-   var remainingThreeCards = fiveRandomCards
-      .filter(removeCardPredicate(firstTwoCards.faceDown))
-      .filter(removeCardPredicate(firstTwoCards.faceUp))
-      .sort(compareCards);
+    const remainingThreeCards = fiveRandomCards
+        .filter(removeCardPredicate(firstTwoCards.faceDown))
+        .filter(removeCardPredicate(firstTwoCards.faceUp))
+        .sort(compareCards);
 
-   var hand = {
-      offset: firstTwoCards.offset,
-      ternary: [],
-      faceDown: firstTwoCards.faceDown,
-      faceUp: [firstTwoCards.faceUp]
-   };
+    const hand = {
+        offset: firstTwoCards.offset,
+        ternary: [],
+        faceDown: firstTwoCards.faceDown,
+        faceUp: [firstTwoCards.faceUp],
+    };
 
-   var addTernaryCards = addTernaryCardsFn(hand, remainingThreeCards);
+    const addTernaryCards = addTernaryCardsFn(hand, remainingThreeCards);
 
-   switch (hand.offset) {
-      case 1:
-         addTernaryCards(0, 1, 2);
-         break;
-      case 2:
-         addTernaryCards(0, 2, 1);
-         break;
-      case 3:
-         addTernaryCards(1, 0, 2);
-         break;
-      case 4:
-         addTernaryCards(1, 2, 0);
-         break;
-      case 5:
-         addTernaryCards(2, 0, 1);
-         break;
-      case 6:
-         addTernaryCards(2, 1, 0);
-         break;
-      default:
-         console.log('impossible');
-   }
+    switch (hand.offset) {
+        case 1:
+            addTernaryCards(0, 1, 2);
+            break;
+        case 2:
+            addTernaryCards(0, 2, 1);
+            break;
+        case 3:
+            addTernaryCards(1, 0, 2);
+            break;
+        case 4:
+            addTernaryCards(1, 2, 0);
+            break;
+        case 5:
+            addTernaryCards(2, 0, 1);
+            break;
+        case 6:
+            addTernaryCards(2, 1, 0);
+            break;
+        default:
+            console.log("impossible");
+    }
 
-   return hand;
+    return hand;
 }
-
 
 //
 // ---------------
 //
 
-
 function getById(id) {
-   return document.getElementById(id);
+    return document.getElementById(id);
 }
-
 
 function toPath(card) {
-   return 'img/' + card.suite.toLowerCase() + '/' + card.rankOrdinal + card.suite.charAt(0).toLowerCase() + '.svg';
+    return `img/${card.suite.toLowerCase()}/${card.rankOrdinal}${card.suite.charAt(0).toLowerCase()}.svg`;
 }
-
 
 function toggleFaceDownCard() {
-   getById('faceDown').classList.toggle('hover');
+    getById("faceDown").classList.toggle("hover");
 }
-
 
 function shuffleButtonLabelNewGame() {
-   getById('shuffle-button').innerHTML = 'New Game';
+    getById("shuffle-button").innerHTML = "New Game";
 }
-
 
 function shuffleButtonLabelShuffle() {
-   getById('shuffle-button').innerHTML = 'Shuffle';
+    getById("shuffle-button").innerHTML = "Shuffle";
 }
 
-
 function addGameOverLabel() {
-   getById('game-over').style.display = 'flex';
+    getById("game-over").style.display = "flex";
 }
 
 function removeGameOverLabel() {
-   getById('game-over').style.display = 'none';
+    getById("game-over").style.display = "none";
 }
 
 function addGameWonLabel(elapsed) {
-   getById('game-won-avg').innerHTML = formatElapsed(elapsed);
-   getById('game-won').style.display = 'flex';
+    getById("game-won-avg").innerHTML = formatElapsed(elapsed);
+    getById("game-won").style.display = "flex";
 }
 
 function removeGameWonLabel() {
-   getById('game-won').style.display = 'none';
+    getById("game-won").style.display = "none";
 }
 
 function addGameWonNewBestLabel(elapsed) {
-   getById('game-won-new-best-avg').innerHTML = formatElapsed(elapsed);
-   getById('game-won-new-best').style.display = 'flex';
+    getById("game-won-new-best-avg").innerHTML = formatElapsed(elapsed);
+    getById("game-won-new-best").style.display = "flex";
 }
 
 function removeGameWonNewBestLabel() {
-   getById('game-won-new-best').style.display = 'none';
+    getById("game-won-new-best").style.display = "none";
 }
-
 
 function longHandToString(hand) {
-   return hand.faceUp[0].html + ' ' +
-      hand.faceUp[1].html + ' ' +
-      hand.faceUp[2].html + ' ' +
-      hand.faceUp[3].html + ' = ' +
-      shortHandToString(hand);
+    return `${hand.faceUp[0].html} ${hand.faceUp[1].html} ${hand.faceUp[2].html} ${hand.faceUp[3].html} = ${shortHandToString(hand)}`;
 }
-
 
 function shortHandToString(hand) {
-   return hand.faceUp[0].html + ' + ' + hand.ternary.join('') + ' = ' +
-      hand.faceUp[0].html + ' + ' + hand.offset + ' = ' +
-      hand.faceDown.html;
+    return `${hand.faceUp[0].html} + ${hand.ternary.join("")} = ${hand.faceUp[0].html} + ${hand.offset} = ${hand.faceDown.html}`;
 }
-
 
 function startTimer() {
-   startTime = Date.now();
+    startTime = Date.now();
 }
-
 
 function stopTimer() {
-   var stopTime = Date.now();
-   var elapsed = stopTime - startTime;
+    const stopTime = Date.now();
+    const elapsed = stopTime - startTime;
 
-   return elapsed;
+    return elapsed;
 }
-
 
 function calcAverageElapsed() {
-   var avg = elapsedArray.reduce(function(p, c) {
-      return p + c;
-   }) / elapsedArray.length;
-   return avg;
+    const avg = elapsedArray.reduce((p, c) => p + c) / elapsedArray.length;
+    return avg;
 }
-
 
 function formatElapsed(elapsed) {
-   return (elapsed / 1000).toFixed(3) + 's';
+    return (elapsed / 1000).toFixed(3) + "s";
 }
-
 
 function updateShufflesCurOfMax() {
-   if (curShuffles > 0) {
-      getById('shuffles-cur-of-max').innerHTML = 'Shuffle ' + curShuffles + ' of ' + maxShuffles + '';
-   } else {
-      getById('shuffles-cur-of-max').innerHTML = '';
-   }
+    if (curShuffles > 0) {
+        getById("shuffles-cur-of-max").innerHTML = `Shuffle ${curShuffles} of ${maxShuffles}`;
+    } else {
+        getById("shuffles-cur-of-max").innerHTML = "";
+    }
 }
-
 
 function updateCurrentAverageElapsed() {
-   if (elapsedArray.length) {
-      getById('avg-cur').innerHTML = 'Average time ' + formatElapsed(calcAverageElapsed());
-   } else {
-      getById('avg-cur').innerHTML = '';
-   }
+    if (elapsedArray.length) {
+        getById("avg-cur").innerHTML = `Average time ${formatElapsed(calcAverageElapsed())}`;
+    } else {
+        getById("avg-cur").innerHTML = "";
+    }
 }
-
 
 function updateBestAverageElapsed() {
-   if (bestAverageElapsed !== Number.MAX_VALUE) {
-      getById('avg-best').innerHTML = 'Best average time ' + formatElapsed(bestAverageElapsed);
-   }
+    if (bestAverageElapsed !== Number.MAX_VALUE) {
+        getById("avg-best").innerHTML = `Best average time ${formatElapsed(bestAverageElapsed)}`;
+    }
 }
-
 
 function addHandToStatistics(hand, elapsed, card, correct) {
-   var correctSymbol = correct ? '✔' : '<span style="color:red">✖</span>';
+    const correctSymbol = correct ? "✔" : '<span style="color:red">✖</span>';
 
-   var table = getById('statistics-list');
-   var tr = document.createElement('tr');
-   tr.innerHTML = '<td>' + longHandToString(hand) + '</td><td>' + formatElapsed(elapsed) + '</td><td>' + card.html + '</td><td>' + correctSymbol + '</td>';
-   table.appendChild(tr, table.firstChild);
+    const table = getById("statistics-list");
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${longHandToString(hand)}</td><td>${formatElapsed(elapsed)}</td><td>${card.html}</td><td>${correctSymbol}</td>`;
+    table.appendChild(tr, table.firstChild);
 }
-
 
 function clearStatistics() {
-   getById('statistics-list').innerHTML = '';
+    getById("statistics-list").innerHTML = "";
 }
-
 
 //
 // ---------------
 //
 
-
 function addShuffleButtonListener() {
-   getById('shuffle-button').addEventListener('click', shuffleButtonAction, false);
+    getById("shuffle-button").addEventListener("click", shuffleButtonAction, false);
 }
-
 
 function addSpaceKeyListener() {
-   document.documentElement.addEventListener('keyup', function(e) {
-      if (e.keyCode == 32) {
-         shuffleButtonAction();
-      }
-   }, false);
+    document.documentElement.addEventListener(
+        "keyup",
+        (e) => {
+            if (e.keyCode == 32) {
+                shuffleButtonAction();
+            }
+        },
+        false
+    );
 }
-
 
 function shuffleButtonAction() {
-   if (state === states.RUNNING) {
-      return;
-   }
+    if (state === states.RUNNING) {
+        return;
+    }
 
-   if (state === states.WON || state === states.GAMEOVER) {
-      gameNew();
-   }
+    if (state === states.WON || state === states.GAMEOVER) {
+        gameNew();
+    }
 
-   gameRunning();
+    gameRunning();
 
-   getById('flipper').addEventListener('transitionend', shuffleButtonTransistionEndHandler, false);
-   toggleFaceDownCard();
+    getById("flipper").addEventListener("transitionend", shuffleButtonTransistionEndHandler, false);
+    toggleFaceDownCard();
 }
-
 
 function shuffleButtonTransistionEndHandler() {
-   showHand();
+    showHand();
 }
-
 
 function showHand() {
-   getById('flipper').removeEventListener('transitionend', shuffleButtonTransistionEndHandler, false);
+    getById("flipper").removeEventListener("transitionend", shuffleButtonTransistionEndHandler, false);
 
-   hand = drawHand();
+    hand = drawHand();
 
-   getById('card0').src = toPath(hand.faceDown);
-   getById('card1').src = toPath(hand.faceUp[0]);
-   getById('card2').src = toPath(hand.faceUp[1]);
-   getById('card3').src = toPath(hand.faceUp[2]);
-   getById('card4').src = toPath(hand.faceUp[3]);
-   getById('answer-hand').innerHTML = shortHandToString(hand);
+    getById("card0").src = toPath(hand.faceDown);
+    getById("card1").src = toPath(hand.faceUp[0]);
+    getById("card2").src = toPath(hand.faceUp[1]);
+    getById("card3").src = toPath(hand.faceUp[2]);
+    getById("card4").src = toPath(hand.faceUp[3]);
+    getById("answer-hand").innerHTML = shortHandToString(hand);
 
-   var ranks = deckGroupedBySuite()[hand.faceDown.suiteOrdinal - 1].map(function(card) {
-      return '<img class="answer-card-button" data-suite="' + card.suite + '" data-rank="' + card.rank + '" src="' + toPath(card) + '">';
-   }).join(' ');
+    const ranks = deckGroupedBySuite()
+        [hand.faceDown.suiteOrdinal - 1].map(
+            (card) => `<img class="answer-card-button" data-suite="${card.suite}" data-rank="${card.rank}" src="${toPath(card)}">`
+        )
+        .join(" ");
 
-   var answerCards = getById('answer-cards');
-   answerCards.innerHTML = ranks;
+    const answerCards = getById("answer-cards");
+    answerCards.innerHTML = ranks;
 
-   if (state !== states.NEW) {
-      updateShufflesCurOfMax();
-      startTimer();
-   }
+    if (state !== states.NEW) {
+        updateShufflesCurOfMax();
+        startTimer();
+    }
 }
-
 
 function addAnswerButtonListener() {
-   getById('answer-cards').addEventListener('click', answerButtonAction, false);
+    getById("answer-cards").addEventListener("click", answerButtonAction, false);
 }
-
 
 function answerButtonAction(e) {
-   if (state !== states.RUNNING || !e.target.hasAttribute('data-suite')) {
-      return;
-   }
-   state = states.ANSWERED;
+    if (state !== states.RUNNING || !e.target.hasAttribute("data-suite")) {
+        return;
+    }
+    state = states.ANSWERED;
 
-   var elapsed = stopTimer();
+    const elapsed = stopTimer();
 
-   var suite = e.target.dataset['suite'];
-   var rank = e.target.dataset['rank'];
-   var card = createCard(suite, rank);
+    const suite = e.target.dataset["suite"];
+    const rank = e.target.dataset["rank"];
+    const card = createCard(suite, rank);
 
-   var correct = hand.faceDown.suite === suite && hand.faceDown.rank === rank;
+    const correct = hand.faceDown.suite === suite && hand.faceDown.rank === rank;
 
-   addHandToStatistics(hand, elapsed, card, correct);
-   toggleFaceDownCard();
+    addHandToStatistics(hand, elapsed, card, correct);
+    toggleFaceDownCard();
 
-   if (correct) {
-      elapsedArray.push(elapsed);
-      updateCurrentAverageElapsed();
+    if (correct) {
+        elapsedArray.push(elapsed);
+        updateCurrentAverageElapsed();
 
-      if (curShuffles + 1 > maxShuffles) {
-         gameWon();
-      }
-   } else {
-      gameOver();
-   }
+        if (curShuffles + 1 > maxShuffles) {
+            gameWon();
+        }
+    } else {
+        gameOver();
+    }
 }
 
+let startTime;
+let hand;
+let curShuffles = 0;
+let maxShuffles = 10;
+let elapsedArray = [];
+let bestAverageElapsed = localStorage.getItem("bestAverageElapsed") || Number.MAX_VALUE;
 
-var startTime;
-var hand;
-var curShuffles = 0;
-var maxShuffles = 10;
-var elapsedArray = [];
-var bestAverageElapsed = localStorage.getItem('bestAverageElapsed') || Number.MAX_VALUE;
-
-var states = {
-   'NEW': 0,
-   'RUNNING': 1,
-   'ANSWERED': 2,
-   'WON': 3,
-   'GAMEOVER': 4
+const states = {
+    NEW: 0,
+    RUNNING: 1,
+    ANSWERED: 2,
+    WON: 3,
+    GAMEOVER: 4,
 };
-var state = states.NEW;
-
+let state = states.NEW;
 
 function gameNew() {
-   state = states.NEW;
+    state = states.NEW;
 
-   curShuffles = 0;
-   elapsedArray = [];
+    curShuffles = 0;
+    elapsedArray = [];
 
-   removeGameOverLabel();
-   removeGameWonLabel();
-   removeGameWonNewBestLabel();
+    removeGameOverLabel();
+    removeGameWonLabel();
+    removeGameWonNewBestLabel();
 
-   updateShufflesCurOfMax();
-   updateCurrentAverageElapsed();
-   updateBestAverageElapsed();
+    updateShufflesCurOfMax();
+    updateCurrentAverageElapsed();
+    updateBestAverageElapsed();
 
-   clearStatistics();
+    clearStatistics();
 }
-
 
 function gameRunning() {
-   state = states.RUNNING;
-   shuffleButtonLabelShuffle();
-   curShuffles += 1;
+    state = states.RUNNING;
+    shuffleButtonLabelShuffle();
+    curShuffles += 1;
 }
-
 
 function gameWon() {
-   state = states.WON;
+    state = states.WON;
 
-   shuffleButtonLabelNewGame();
+    shuffleButtonLabelNewGame();
 
-   var elapsed = calcAverageElapsed();
-   if (elapsed < bestAverageElapsed) {
-      bestAverageElapsed = elapsed;
-      localStorage.setItem('bestAverageElapsed', bestAverageElapsed);
-      addGameWonNewBestLabel(elapsed);
-   } else {
-      addGameWonLabel(elapsed);
-   }
-
+    const elapsed = calcAverageElapsed();
+    if (elapsed < bestAverageElapsed) {
+        bestAverageElapsed = elapsed;
+        localStorage.setItem("bestAverageElapsed", bestAverageElapsed);
+        addGameWonNewBestLabel(elapsed);
+    } else {
+        addGameWonLabel(elapsed);
+    }
 }
-
 
 function gameOver() {
-   state = states.GAMEOVER;
+    state = states.GAMEOVER;
 
-   shuffleButtonLabelNewGame();
-   addGameOverLabel();
+    shuffleButtonLabelNewGame();
+    addGameOverLabel();
 }
 
-
 function main() {
-   addAnswerButtonListener();
-   addShuffleButtonListener();
-   addSpaceKeyListener();
+    addAnswerButtonListener();
+    addShuffleButtonListener();
+    addSpaceKeyListener();
 
-   gameNew();
-   showHand();
+    gameNew();
+    showHand();
 }
 
 main();
-

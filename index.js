@@ -139,11 +139,13 @@ function showAlert(id) {
 }
 
 function longHandToString(hand) {
-    return `${hand.faceUp[0].html} ${hand.faceUp[1].html} ${hand.faceUp[2].html} ${hand.faceUp[3].html} = ${shortHandToString(hand)}`;
+    const cards = hand.faceUp.map((card) => card.html).join(" ");
+    return `<span class="hand-cards">${cards} =</span> ${shortHandParts(hand).join(" ")}`;
 }
 
-function shortHandToString(hand) {
-    return `${hand.faceUp[0].html} + ${hand.ternary.join("")} = ${hand.faceUp[0].html} + ${hand.offset} = ${hand.faceDown.html}`;
+function shortHandParts(hand) {
+    const first = hand.faceUp[0].html;
+    return [`${first} + ${hand.ternary.join("")}`, `= ${first} + ${hand.offset} = ${hand.faceDown.html}`];
 }
 
 function startTimer() {
@@ -276,7 +278,9 @@ function showHand() {
 
     showCard("card0", hand.faceDown);
     hand.faceUp.forEach((card, i) => showCard(`card${i + 1}`, card));
-    getById("answer-hand").innerHTML = shortHandToString(hand);
+    getById("answer-hand").innerHTML = shortHandParts(hand)
+        .map((part) => `<span class="hand-part">${part}</span>`)
+        .join(" ");
 
     const answerButtonsHtml = deckGroupedBySuit()
         [hand.faceDown.suitOrdinal - 1].map(

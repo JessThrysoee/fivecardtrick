@@ -16,11 +16,23 @@ td {
     font-size: 100%;
 }
 
+@property --u {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 1px;
+}
+
+body {
+    container-type: inline-size;
+}
+
 .content {
-    width: 900px;
+    --pad: 20px;
+    --u: min(1px, (100cqw - 2 * var(--pad)) / 900);
+    max-width: 900px;
     margin: 0 auto;
     background: #fafafa;
-    padding: 30px 20px;
+    padding: 30px var(--pad);
     border-top: 1px solid red;
     border-bottom: 1px solid red;
 }
@@ -33,7 +45,7 @@ td {
 
 h1 {
     margin-top: 0;
-    font-size: 36px;
+    font-size: clamp(22px, 5vw, 36px);
 }
 
 .card-container {
@@ -50,42 +62,42 @@ h1 {
 
 .stack {
     position: relative;
-    width: 600px;
-    height: 405px;
+    width: calc(600 * var(--u));
+    height: calc(405 * var(--u));
 }
 
 .card {
     border: solid 1px #c0c0c0;
-    border-radius: 10px;
+    border-radius: calc(10 * var(--u));
     overflow: hidden;
 }
 
 .stack .card {
     position: absolute;
-    top: 10px;
-    left: 187.5px;
+    top: calc(10 * var(--u));
+    left: calc(187.5 * var(--u));
 }
 
 .card img {
     display: block;
-    width: 225px;
-    height: 314px;
+    width: calc(225 * var(--u));
+    height: calc(314 * var(--u));
 }
 
 .card.one {
-    transform: rotate(-20deg) translate(-150px);
+    transform: rotate(-20deg) translate(calc(-150 * var(--u)));
 }
 
 .card.two {
-    transform: rotate(-10deg) translate(-50px);
+    transform: rotate(-10deg) translate(calc(-50 * var(--u)));
 }
 
 .card.three {
-    transform: rotate(10deg) translate(50px);
+    transform: rotate(10deg) translate(calc(50 * var(--u)));
 }
 
 .card.four {
-    transform: rotate(20deg) translate(150px);
+    transform: rotate(20deg) translate(calc(150 * var(--u)));
 }
 
 .answer-hand {
@@ -98,7 +110,7 @@ h1 {
 /* flip */
 
 .flip-container {
-    perspective: 1000px;
+    perspective: calc(1000 * var(--u));
     transform-style: preserve-3d;
 }
 
@@ -113,8 +125,8 @@ h1 {
 .flip-container,
 .front,
 .back {
-    width: 225px;
-    height: 348px;
+    width: calc(225 * var(--u));
+    height: calc(348 * var(--u));
 }
 
 .flipper {
@@ -297,4 +309,82 @@ td:first-of-type {
 
 .game-over a:visited {
     color: red;
+}
+
+/* narrow screens */
+
+@media (max-width: 860px) {
+    .content {
+        --pad: 12px;
+        padding-top: 20px;
+    }
+
+    .head {
+        flex-wrap: wrap;
+        gap: 4px 16px;
+        margin-bottom: 12px;
+    }
+
+    .flip-container,
+    .front,
+    .back {
+        height: calc(314 * var(--u) + 2px + 40px);
+    }
+
+    .answer-hand {
+        top: calc(314 * var(--u) + 2px + 4px);
+        bottom: auto;
+        font-size: 14px;
+        line-height: 18px;
+    }
+
+    .hand-part {
+        white-space: nowrap;
+    }
+
+    .button-container {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .answer-cards {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 4px;
+        flex: 1 1 646px;
+    }
+}
+
+@media (max-width: 600px) {
+    .flip-container,
+    .front,
+    .back {
+        height: calc(314 * var(--u) + 2px + 34px);
+    }
+
+    .answer-hand {
+        font-size: 12px;
+        line-height: 15px;
+    }
+
+    .hand-cards {
+        display: none;
+    }
+
+    .shuffle-button {
+        box-sizing: border-box;
+        width: 100%;
+        height: 48px;
+        line-height: 48px;
+    }
+
+    .statistics-header {
+        font-size: 14px;
+    }
+
+    .statistics-list {
+        font-size: 13px;
+    }
 }

@@ -1,29 +1,29 @@
 const ranks = ["ACE", "2", "3", "4", "5", "6", "7", "8", "9", "10", "JACK", "QUEEN", "KING"];
-const suites = ["DIAMONDS", "HEARTS", "SPADES", "CLUBS"];
-const suitesChars = ["♦", "♥", "♠", "♣"];
+const suits = ["DIAMONDS", "HEARTS", "SPADES", "CLUBS"];
+const suitChars = ["♦", "♥", "♠", "♣"];
 const ternary = ["L", "M", "H"];
 
-const createCard = (suite, rank) => ({
-    suite: suite,
-    suiteChar: suiteChar(suite),
-    suiteOrdinal: suites.indexOf(suite) + 1,
-    suiteColor: suiteColor(suite),
+const createCard = (suit, rank) => ({
+    suit: suit,
+    suitChar: suitChar(suit),
+    suitOrdinal: suits.indexOf(suit) + 1,
+    suitColor: suitColor(suit),
     rank: rank,
     rankOrdinal: ranks.indexOf(rank) + 1,
-    string: suiteChar(suite) + rankChar(rank),
-    html: `<span style="color:${suiteColor(suite)}">${suiteChar(suite)}</span>${rankChar(rank)}`,
+    string: suitChar(suit) + rankChar(rank),
+    html: `<span style="color:${suitColor(suit)}">${suitChar(suit)}</span>${rankChar(rank)}`,
 });
 
 function rankChar(rank) {
     return ["ACE", "JACK", "QUEEN", "KING"].indexOf(rank) != -1 ? rank.charAt(0) : rank;
 }
 
-function suiteChar(suite) {
-    return suitesChars[suites.indexOf(suite)];
+function suitChar(suit) {
+    return suitChars[suits.indexOf(suit)];
 }
 
-function suiteColor(suite) {
-    return ["HEARTS", "DIAMONDS"].indexOf(suite) != -1 ? "red" : "black";
+function suitColor(suit) {
+    return ["HEARTS", "DIAMONDS"].indexOf(suit) != -1 ? "red" : "black";
 }
 
 function compareRanks(card1, card2) {
@@ -32,9 +32,9 @@ function compareRanks(card1, card2) {
     return 0;
 }
 
-function compareSuites(card1, card2) {
-    if (card1.suiteOrdinal < card2.suiteOrdinal) return -1;
-    if (card1.suiteOrdinal > card2.suiteOrdinal) return 1;
+function compareSuits(card1, card2) {
+    if (card1.suitOrdinal < card2.suitOrdinal) return -1;
+    if (card1.suitOrdinal > card2.suitOrdinal) return 1;
     return 0;
 }
 
@@ -43,27 +43,27 @@ function compareCards(card1, card2) {
     if (order !== 0) {
         return order;
     }
-    return compareSuites(card1, card2);
+    return compareSuits(card1, card2);
 }
 
 // { card[][] }
-const deckGroupedBySuite = () => suites.map((suite) => ranks.map((rank) => createCard(suite, rank)));
+const deckGroupedBySuit = () => suits.map((suit) => ranks.map((rank) => createCard(suit, rank)));
 
-// card[] -> { suite:card[] }
-function groupBySuite(arrayOfCards) {
+// card[] -> { suit:card[] }
+function groupBySuit(arrayOfCards) {
     const cards = {};
 
     arrayOfCards.forEach((card) => {
-        if (!cards[card.suite]) {
-            cards[card.suite] = [];
+        if (!cards[card.suit]) {
+            cards[card.suit] = [];
         }
-        cards[card.suite].push(card);
+        cards[card.suit].push(card);
     });
 
     return cards;
 }
 
-// { suite:card[] } -> card[][]
+// { suit:card[] } -> card[][]
 const arrayOfArraysOfCard = (objectOfCards) => Object.keys(objectOfCards).map((key) => objectOfCards[key]);
 
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
@@ -85,16 +85,16 @@ function pickRandomCards(arrayOfCards, numberOfPicks) {
 }
 
 function removeCardPredicate(card) {
-    return (c) => (c.suite == card.suite && c.rank == card.rank) != true;
+    return (c) => (c.suit == card.suit && c.rank == card.rank) != true;
 }
 
 function chooseFirstTwoCards(fiveRandomCards) {
-    const fiveRandomCardsGroupBySuite = arrayOfArraysOfCard(groupBySuite(fiveRandomCards));
+    const fiveRandomCardsGroupBySuit = arrayOfArraysOfCard(groupBySuit(fiveRandomCards));
 
-    const suitesWithMoreThanOneCard = fiveRandomCardsGroupBySuite.filter((arr) => arr.length > 1);
+    const suitsWithMoreThanOneCard = fiveRandomCardsGroupBySuit.filter((arr) => arr.length > 1);
 
-    const randomIndex = random(0, suitesWithMoreThanOneCard.length);
-    const setOfMoreThanOneCard = suitesWithMoreThanOneCard[randomIndex];
+    const randomIndex = random(0, suitsWithMoreThanOneCard.length);
+    const setOfMoreThanOneCard = suitsWithMoreThanOneCard[randomIndex];
 
     const usingCards = pickRandomCards(setOfMoreThanOneCard, 2);
 
@@ -129,7 +129,7 @@ const addTernaryCardsFn = (hand, remainingThreeCards) => (idx0, idx1, idx2) => {
 };
 
 function drawHand() {
-    const deck = deckGroupedBySuite().flat();
+    const deck = deckGroupedBySuit().flat();
 
     const fiveRandomCards = pickRandomCards(deck, 5);
 
@@ -182,11 +182,11 @@ function getById(id) {
 }
 
 function toPath(card) {
-    return `img/${card.suite.toLowerCase()}/${card.rankOrdinal}${card.suite.charAt(0).toLowerCase()}.svg`;
+    return `img/${card.suit.toLowerCase()}/${card.rankOrdinal}${card.suit.charAt(0).toLowerCase()}.svg`;
 }
 
 function toggleFaceDownCard() {
-    getById("faceDown").classList.toggle("hover");
+    getById("faceDown").classList.toggle("revealed");
 }
 
 function shuffleButtonLabelNewGame() {
@@ -317,16 +317,16 @@ function shuffleButtonAction() {
 
     gameRunning();
 
-    getById("flipper").addEventListener("transitionend", shuffleButtonTransistionEndHandler, false);
+    getById("flipper").addEventListener("transitionend", shuffleButtonTransitionEndHandler, false);
     toggleFaceDownCard();
 }
 
-function shuffleButtonTransistionEndHandler() {
+function shuffleButtonTransitionEndHandler() {
     showHand();
 }
 
 function showHand() {
-    getById("flipper").removeEventListener("transitionend", shuffleButtonTransistionEndHandler, false);
+    getById("flipper").removeEventListener("transitionend", shuffleButtonTransitionEndHandler, false);
 
     hand = drawHand();
 
@@ -337,14 +337,14 @@ function showHand() {
     getById("card4").src = toPath(hand.faceUp[3]);
     getById("answer-hand").innerHTML = shortHandToString(hand);
 
-    const ranks = deckGroupedBySuite()
-        [hand.faceDown.suiteOrdinal - 1].map(
-            (card) => `<img class="answer-card-button" data-suite="${card.suite}" data-rank="${card.rank}" src="${toPath(card)}">`,
+    const answerButtonsHtml = deckGroupedBySuit()
+        [hand.faceDown.suitOrdinal - 1].map(
+            (card) => `<img class="answer-card-button" data-suit="${card.suit}" data-rank="${card.rank}" src="${toPath(card)}">`,
         )
         .join(" ");
 
     const answerCards = getById("answer-cards");
-    answerCards.innerHTML = ranks;
+    answerCards.innerHTML = answerButtonsHtml;
 
     if (state !== states.NEW) {
         updateShufflesCurOfMax();
@@ -357,18 +357,18 @@ function addAnswerButtonListener() {
 }
 
 function answerButtonAction(e) {
-    if (state !== states.RUNNING || !e.target.hasAttribute("data-suite")) {
+    if (state !== states.RUNNING || !e.target.hasAttribute("data-suit")) {
         return;
     }
     state = states.ANSWERED;
 
     const elapsed = stopTimer();
 
-    const suite = e.target.dataset["suite"];
+    const suit = e.target.dataset["suit"];
     const rank = e.target.dataset["rank"];
-    const card = createCard(suite, rank);
+    const card = createCard(suit, rank);
 
-    const correct = hand.faceDown.suite === suite && hand.faceDown.rank === rank;
+    const correct = hand.faceDown.suit === suit && hand.faceDown.rank === rank;
 
     addHandToStatistics(hand, elapsed, card, correct);
     toggleFaceDownCard();

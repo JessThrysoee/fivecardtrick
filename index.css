@@ -102,11 +102,11 @@ h1 {
     transform-style: preserve-3d;
 }
 
-.flip-container.hover .back {
+.flip-container.revealed .back {
     transform: rotateY(0deg);
 }
 
-.flip-container.hover .front {
+.flip-container.revealed .front {
     transform: rotateY(180deg);
 }
 

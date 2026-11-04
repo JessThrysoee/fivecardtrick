@@ -2,69 +2,38 @@ const ranks = ["ACE", "2", "3", "4", "5", "6", "7", "8", "9", "10", "JACK", "QUE
 const suits = ["DIAMONDS", "HEARTS", "SPADES", "CLUBS"];
 const suitChars = ["♦", "♥", "♠", "♣"];
 const ternary = ["L", "M", "H"];
+const ternaryPermutations = [
+    [0, 1, 2],
+    [0, 2, 1],
+    [1, 0, 2],
+    [1, 2, 0],
+    [2, 0, 1],
+    [2, 1, 0],
+];
 
-const createCard = (suit, rank) => ({
-    suit: suit,
-    suitChar: suitChar(suit),
-    suitOrdinal: suits.indexOf(suit) + 1,
-    suitColor: suitColor(suit),
-    rank: rank,
-    rankOrdinal: ranks.indexOf(rank) + 1,
-    string: suitChar(suit) + rankChar(rank),
-    html: `<span style="color:${suitColor(suit)}">${suitChar(suit)}</span>${rankChar(rank)}`,
-});
+function createCard(suit, rank) {
+    const suitChar = suitChars[suits.indexOf(suit)];
+    const suitColor = ["HEARTS", "DIAMONDS"].includes(suit) ? "red" : "black";
+    return {
+        suit,
+        suitChar,
+        suitOrdinal: suits.indexOf(suit) + 1,
+        suitColor,
+        rank,
+        rankOrdinal: ranks.indexOf(rank) + 1,
+        string: suitChar + rankChar(rank),
+        html: `<span style="color:${suitColor}">${suitChar}</span>${rankChar(rank)}`,
+    };
+}
 
 function rankChar(rank) {
-    return ["ACE", "JACK", "QUEEN", "KING"].indexOf(rank) != -1 ? rank.charAt(0) : rank;
+    return ["ACE", "JACK", "QUEEN", "KING"].includes(rank) ? rank.charAt(0) : rank;
 }
 
-function suitChar(suit) {
-    return suitChars[suits.indexOf(suit)];
-}
-
-function suitColor(suit) {
-    return ["HEARTS", "DIAMONDS"].indexOf(suit) != -1 ? "red" : "black";
-}
-
-function compareRanks(card1, card2) {
-    if (card1.rankOrdinal < card2.rankOrdinal) return -1;
-    if (card1.rankOrdinal > card2.rankOrdinal) return 1;
-    return 0;
-}
-
-function compareSuits(card1, card2) {
-    if (card1.suitOrdinal < card2.suitOrdinal) return -1;
-    if (card1.suitOrdinal > card2.suitOrdinal) return 1;
-    return 0;
-}
-
-function compareCards(card1, card2) {
-    const order = compareRanks(card1, card2);
-    if (order !== 0) {
-        return order;
-    }
-    return compareSuits(card1, card2);
-}
+const compareCards = (a, b) => a.rankOrdinal - b.rankOrdinal || a.suitOrdinal - b.suitOrdinal;
 
 // { card[][] }
 const deckGroupedBySuit = () => suits.map((suit) => ranks.map((rank) => createCard(suit, rank)));
-
-// card[] -> { suit:card[] }
-function groupBySuit(arrayOfCards) {
-    const cards = {};
-
-    arrayOfCards.forEach((card) => {
-        if (!cards[card.suit]) {
-            cards[card.suit] = [];
-        }
-        cards[card.suit].push(card);
-    });
-
-    return cards;
-}
-
-// { suit:card[] } -> card[][]
-const arrayOfArraysOfCard = (objectOfCards) => Object.keys(objectOfCards).map((key) => objectOfCards[key]);
 
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 
@@ -84,14 +53,8 @@ function pickRandomCards(arrayOfCards, numberOfPicks) {
     return picks;
 }
 
-function removeCardPredicate(card) {
-    return (c) => (c.suit == card.suit && c.rank == card.rank) != true;
-}
-
 function chooseFirstTwoCards(fiveRandomCards) {
-    const fiveRandomCardsGroupBySuit = arrayOfArraysOfCard(groupBySuit(fiveRandomCards));
-
-    const suitsWithMoreThanOneCard = fiveRandomCardsGroupBySuit.filter((arr) => arr.length > 1);
+    const suitsWithMoreThanOneCard = Object.values(Object.groupBy(fiveRandomCards, (card) => card.suit)).filter((arr) => arr.length > 1);
 
     const randomIndex = random(0, suitsWithMoreThanOneCard.length);
     const setOfMoreThanOneCard = suitsWithMoreThanOneCard[randomIndex];
@@ -117,60 +80,23 @@ function chooseFirstTwoCards(fiveRandomCards) {
     };
 }
 
-const addTernaryCardsFn = (hand, remainingThreeCards) => (idx0, idx1, idx2) => {
-    hand.ternary.push(ternary[idx0]);
-    hand.faceUp.push(remainingThreeCards[idx0]);
-
-    hand.ternary.push(ternary[idx1]);
-    hand.faceUp.push(remainingThreeCards[idx1]);
-
-    hand.ternary.push(ternary[idx2]);
-    hand.faceUp.push(remainingThreeCards[idx2]);
-};
-
 function drawHand() {
     const deck = deckGroupedBySuit().flat();
 
     const fiveRandomCards = pickRandomCards(deck, 5);
 
-    const firstTwoCards = chooseFirstTwoCards(fiveRandomCards);
+    const { offset, faceUp, faceDown } = chooseFirstTwoCards(fiveRandomCards);
 
-    const remainingThreeCards = fiveRandomCards
-        .filter(removeCardPredicate(firstTwoCards.faceDown))
-        .filter(removeCardPredicate(firstTwoCards.faceUp))
-        .sort(compareCards);
+    const remainingThreeCards = fiveRandomCards.filter((c) => c !== faceUp && c !== faceDown).sort(compareCards);
 
-    const hand = {
-        offset: firstTwoCards.offset,
-        ternary: [],
-        faceDown: firstTwoCards.faceDown,
-        faceUp: [firstTwoCards.faceUp],
+    const permutation = ternaryPermutations[offset - 1];
+
+    return {
+        offset,
+        ternary: permutation.map((i) => ternary[i]),
+        faceDown,
+        faceUp: [faceUp, ...permutation.map((i) => remainingThreeCards[i])],
     };
-
-    const addTernaryCards = addTernaryCardsFn(hand, remainingThreeCards);
-
-    switch (hand.offset) {
-        case 1:
-            addTernaryCards(0, 1, 2);
-            break;
-        case 2:
-            addTernaryCards(0, 2, 1);
-            break;
-        case 3:
-            addTernaryCards(1, 0, 2);
-            break;
-        case 4:
-            addTernaryCards(1, 2, 0);
-            break;
-        case 5:
-            addTernaryCards(2, 0, 1);
-            break;
-        case 6:
-            addTernaryCards(2, 1, 0);
-            break;
-    }
-
-    return hand;
 }
 
 //

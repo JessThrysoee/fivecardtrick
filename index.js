@@ -304,7 +304,7 @@ function addSpaceKeyListener() {
                 shuffleButtonAction();
             }
         },
-        false
+        false,
     );
 }
 
@@ -341,7 +341,7 @@ function showHand() {
 
     const ranks = deckGroupedBySuite()
         [hand.faceDown.suiteOrdinal - 1].map(
-            (card) => `<img class="answer-card-button" data-suite="${card.suite}" data-rank="${card.rank}" src="${toPath(card)}">`
+            (card) => `<img class="answer-card-button" data-suite="${card.suite}" data-rank="${card.rank}" src="${toPath(card)}">`,
         )
         .join(" ");
 

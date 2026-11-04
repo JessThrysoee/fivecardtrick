@@ -194,7 +194,7 @@ function updateCurrentAverageElapsed() {
 }
 
 function updateBestAverageElapsed() {
-    if (bestAverageElapsed !== Number.MAX_VALUE) {
+    if (Number.isFinite(bestAverageElapsed)) {
         getById("avg-best").innerHTML = `Best average time ${formatElapsed(bestAverageElapsed)}`;
     }
 }
@@ -316,7 +316,7 @@ let hand;
 let curShuffles = 0;
 let maxShuffles = 10;
 let elapsedArray = [];
-let bestAverageElapsed = localStorage.getItem("bestAverageElapsed") || Number.MAX_VALUE;
+let bestAverageElapsed = loadBestAverageElapsed();
 
 const states = {
     NEW: 0,
@@ -326,6 +326,11 @@ const states = {
     GAMEOVER: 4,
 };
 let state = states.NEW;
+
+function loadBestAverageElapsed() {
+    const best = parseFloat(localStorage.getItem("bestAverageElapsed"));
+    return Number.isFinite(best) && best > 0 ? best : Infinity;
+}
 
 function gameNew() {
     state = states.NEW;

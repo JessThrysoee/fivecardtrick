@@ -403,6 +403,14 @@ function main() {
 
     gameNew();
     showHand();
+    enableFlipAnimation();
+}
+
+function enableFlipAnimation() {
+    const flipContainer = getById("faceDown");
+    // Flush styles first so no transition can start from a style computed before index.css loaded.
+    getComputedStyle(flipContainer.querySelector(".front")).transform;
+    flipContainer.classList.add("animated");
 }
 
 main();

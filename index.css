@@ -155,6 +155,10 @@ h1 {
 
 /* input */
 
+.answer-cards {
+    min-height: 64px;
+}
+
 .answer-card-button {
     display: inline-block;
     box-sizing: content-box;
@@ -386,5 +390,17 @@ td:first-of-type {
 
     .statistics-list {
         font-size: 13px;
+    }
+}
+
+@container (max-width: 669px) {
+    .answer-cards {
+        min-height: calc(2 * 64px + 4px);
+    }
+}
+
+@container (max-width: 369px) {
+    .answer-cards {
+        min-height: calc(3 * 64px + 2 * 4px);
     }
 }

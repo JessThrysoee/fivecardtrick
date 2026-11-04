@@ -128,38 +128,14 @@ function showCard(id, card) {
     img.alt = cardName(card);
 }
 
-function shuffleButtonLabelNewGame() {
-    getById("shuffle-button").innerHTML = "New Game";
+function setShuffleButtonLabel(label) {
+    getById("shuffle-button").textContent = label;
 }
 
-function shuffleButtonLabelShuffle() {
-    getById("shuffle-button").innerHTML = "Shuffle";
-}
-
-function addGameOverLabel() {
-    getById("game-over").style.display = "flex";
-}
-
-function removeGameOverLabel() {
-    getById("game-over").style.display = "none";
-}
-
-function addGameWonLabel(elapsed) {
-    getById("game-won-avg").innerHTML = formatElapsed(elapsed);
-    getById("game-won").style.display = "flex";
-}
-
-function removeGameWonLabel() {
-    getById("game-won").style.display = "none";
-}
-
-function addGameWonNewBestLabel(elapsed) {
-    getById("game-won-new-best-avg").innerHTML = formatElapsed(elapsed);
-    getById("game-won-new-best").style.display = "flex";
-}
-
-function removeGameWonNewBestLabel() {
-    getById("game-won-new-best").style.display = "none";
+function showAlert(id) {
+    document.querySelectorAll(".alert").forEach((alert) => {
+        alert.hidden = alert.id !== id;
+    });
 }
 
 function longHandToString(hand) {
@@ -189,23 +165,23 @@ function formatElapsed(elapsed) {
 
 function updateShufflesCurOfMax() {
     if (curShuffles > 0) {
-        getById("shuffles-cur-of-max").innerHTML = `Shuffle ${curShuffles} of ${maxShuffles}`;
+        getById("shuffles-cur-of-max").textContent = `Shuffle ${curShuffles} of ${maxShuffles}`;
     } else {
-        getById("shuffles-cur-of-max").innerHTML = "";
+        getById("shuffles-cur-of-max").textContent = "";
     }
 }
 
 function updateCurrentAverageElapsed() {
     if (elapsedArray.length) {
-        getById("avg-cur").innerHTML = `Average time ${formatElapsed(calcAverageElapsed())}`;
+        getById("avg-cur").textContent = `Average time ${formatElapsed(calcAverageElapsed())}`;
     } else {
-        getById("avg-cur").innerHTML = "";
+        getById("avg-cur").textContent = "";
     }
 }
 
 function updateBestAverageElapsed() {
     if (Number.isFinite(bestAverageElapsed)) {
-        getById("avg-best").innerHTML = `Best average time ${formatElapsed(bestAverageElapsed)}`;
+        getById("avg-best").textContent = `Best average time ${formatElapsed(bestAverageElapsed)}`;
     }
 }
 
@@ -219,7 +195,7 @@ function addHandToStatistics(hand, elapsed, card, correct) {
 }
 
 function clearStatistics() {
-    getById("statistics-list").innerHTML = "";
+    getById("statistics-list").replaceChildren();
 }
 
 //
@@ -376,9 +352,7 @@ function gameNew() {
     curShuffles = 0;
     elapsedArray = [];
 
-    removeGameOverLabel();
-    removeGameWonLabel();
-    removeGameWonNewBestLabel();
+    showAlert(null);
 
     updateShufflesCurOfMax();
     updateCurrentAverageElapsed();
@@ -389,30 +363,32 @@ function gameNew() {
 
 function gameDealing() {
     state = states.DEALING;
-    shuffleButtonLabelShuffle();
+    setShuffleButtonLabel("Shuffle");
     curShuffles += 1;
 }
 
 function gameWon() {
     state = states.WON;
 
-    shuffleButtonLabelNewGame();
+    setShuffleButtonLabel("New Game");
 
     const elapsed = calcAverageElapsed();
-    if (elapsed < bestAverageElapsed) {
+    const newBest = elapsed < bestAverageElapsed;
+    if (newBest) {
         bestAverageElapsed = elapsed;
         localStorage.setItem("bestAverageElapsed", bestAverageElapsed);
-        addGameWonNewBestLabel(elapsed);
-    } else {
-        addGameWonLabel(elapsed);
     }
+
+    const alertId = newBest ? "game-won-new-best" : "game-won";
+    getById(`${alertId}-avg`).textContent = formatElapsed(elapsed);
+    showAlert(alertId);
 }
 
 function gameOver() {
     state = states.GAMEOVER;
 
-    shuffleButtonLabelNewGame();
-    addGameOverLabel();
+    setShuffleButtonLabel("New Game");
+    showAlert("game-over");
 }
 
 function main() {

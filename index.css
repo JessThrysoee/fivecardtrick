@@ -256,10 +256,14 @@ td:first-of-type {
 /* end game alerts */
 
 .alert {
-    display: none;
+    display: flex;
     justify-content: center;
     padding-top: 44px;
     padding-bottom: 20px;
+}
+
+.alert[hidden] {
+    display: none;
 }
 
 .game-over,

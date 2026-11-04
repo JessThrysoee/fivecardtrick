@@ -158,14 +158,11 @@ function shortHandToString(hand) {
 }
 
 function startTimer() {
-    startTime = Date.now();
+    startTime = performance.now();
 }
 
 function stopTimer() {
-    const stopTime = Date.now();
-    const elapsed = stopTime - startTime;
-
-    return elapsed;
+    return Math.round(performance.now() - startTime);
 }
 
 function calcAverageElapsed() {
@@ -264,11 +261,25 @@ function flipThenStartRound() {
     toggleFaceDownCard();
 }
 
-function startRound() {
+async function startRound() {
     showHand();
+    await waitForCardImages();
     state = states.RUNNING;
     updateShufflesCurOfMax();
     startTimer();
+}
+
+function preloadCardImages() {
+    deckGroupedBySuit()
+        .flat()
+        .forEach((card) => {
+            new Image().src = toPath(card);
+        });
+}
+
+function waitForCardImages() {
+    const images = document.querySelectorAll(".card img, #answer-cards img");
+    return Promise.all([...images].map((img) => img.decode().catch(() => {})));
 }
 
 function showHand() {
@@ -397,6 +408,7 @@ function main() {
     addAnswerButtonListener();
     addShuffleButtonListener();
     addSpaceKeyListener();
+    preloadCardImages();
 
     gameNew();
     showHand();

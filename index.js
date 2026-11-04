@@ -233,7 +233,7 @@ function addSpaceKeyListener() {
 }
 
 function shuffleButtonAction() {
-    if (state === states.RUNNING) {
+    if (state === states.DEALING || state === states.RUNNING) {
         return;
     }
 
@@ -241,19 +241,37 @@ function shuffleButtonAction() {
         gameNew();
     }
 
-    gameRunning();
+    gameDealing();
+    flipThenStartRound();
+}
 
-    getById("flipper").addEventListener("transitionend", shuffleButtonTransitionEndHandler, false);
+function flipThenStartRound() {
+    const flipper = getById("flipper");
+    let started = false;
+
+    const start = () => {
+        if (started) {
+            return;
+        }
+        started = true;
+        flipper.removeEventListener("transitionend", start, false);
+        clearTimeout(fallbackTimer);
+        startRound();
+    };
+
+    flipper.addEventListener("transitionend", start, false);
+    const fallbackTimer = setTimeout(start, flipFallbackMs);
     toggleFaceDownCard();
 }
 
-function shuffleButtonTransitionEndHandler() {
+function startRound() {
     showHand();
+    state = states.RUNNING;
+    updateShufflesCurOfMax();
+    startTimer();
 }
 
 function showHand() {
-    getById("flipper").removeEventListener("transitionend", shuffleButtonTransitionEndHandler, false);
-
     hand = drawHand();
 
     getById("card0").src = toPath(hand.faceDown);
@@ -271,11 +289,6 @@ function showHand() {
 
     const answerCards = getById("answer-cards");
     answerCards.innerHTML = answerButtonsHtml;
-
-    if (state !== states.NEW) {
-        updateShufflesCurOfMax();
-        startTimer();
-    }
 }
 
 function addAnswerButtonListener() {
@@ -318,12 +331,15 @@ let maxShuffles = 10;
 let elapsedArray = [];
 let bestAverageElapsed = loadBestAverageElapsed();
 
+const flipFallbackMs = 1000;
+
 const states = {
     NEW: 0,
-    RUNNING: 1,
-    ANSWERED: 2,
-    WON: 3,
-    GAMEOVER: 4,
+    DEALING: 1,
+    RUNNING: 2,
+    ANSWERED: 3,
+    WON: 4,
+    GAMEOVER: 5,
 };
 let state = states.NEW;
 
@@ -349,8 +365,8 @@ function gameNew() {
     clearStatistics();
 }
 
-function gameRunning() {
-    state = states.RUNNING;
+function gameDealing() {
+    state = states.DEALING;
     shuffleButtonLabelShuffle();
     curShuffles += 1;
 }

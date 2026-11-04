@@ -54,7 +54,9 @@ function pickRandomCards(arrayOfCards, numberOfPicks) {
 }
 
 function chooseFirstTwoCards(fiveRandomCards) {
-    const suitsWithMoreThanOneCard = Object.values(Object.groupBy(fiveRandomCards, (card) => card.suit)).filter((arr) => arr.length > 1);
+    const suitsWithMoreThanOneCard = suits
+        .map((suit) => fiveRandomCards.filter((card) => card.suit === suit))
+        .filter((arr) => arr.length > 1);
 
     const randomIndex = random(0, suitsWithMoreThanOneCard.length);
     const setOfMoreThanOneCard = suitsWithMoreThanOneCard[randomIndex];
@@ -346,8 +348,19 @@ const states = {
 let state = states.NEW;
 
 function loadBestAverageElapsed() {
-    const best = parseFloat(localStorage.getItem("bestAverageElapsed"));
+    let best;
+    try {
+        best = parseFloat(localStorage.getItem("bestAverageElapsed"));
+    } catch {
+        return Infinity;
+    }
     return Number.isFinite(best) && best > 0 ? best : Infinity;
+}
+
+function saveBestAverageElapsed(best) {
+    try {
+        localStorage.setItem("bestAverageElapsed", best);
+    } catch {}
 }
 
 function gameNew() {
@@ -380,7 +393,7 @@ function gameWon() {
     const newBest = elapsed < bestAverageElapsed;
     if (newBest) {
         bestAverageElapsed = elapsed;
-        localStorage.setItem("bestAverageElapsed", bestAverageElapsed);
+        saveBestAverageElapsed(bestAverageElapsed);
     }
 
     const alertId = newBest ? "game-won-new-best" : "game-won";

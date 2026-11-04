@@ -112,7 +112,20 @@ function toPath(card) {
 }
 
 function toggleFaceDownCard() {
-    getById("faceDown").classList.toggle("revealed");
+    const revealed = getById("faceDown").classList.toggle("revealed");
+    document.querySelector("#flipper .front").setAttribute("aria-hidden", String(revealed));
+    document.querySelector("#flipper .back").setAttribute("aria-hidden", String(!revealed));
+}
+
+function cardName(card) {
+    const rank = card.rank.charAt(0) + card.rank.slice(1).toLowerCase();
+    return `${rank} of ${card.suit.toLowerCase()}`;
+}
+
+function showCard(id, card) {
+    const img = getById(id);
+    img.src = toPath(card);
+    img.alt = cardName(card);
 }
 
 function shuffleButtonLabelNewGame() {
@@ -218,15 +231,15 @@ function addShuffleButtonListener() {
 }
 
 function addSpaceKeyListener() {
-    document.documentElement.addEventListener(
-        "keyup",
-        (e) => {
-            if (e.keyCode == 32) {
-                shuffleButtonAction();
-            }
-        },
-        false,
-    );
+    document.addEventListener("keydown", (e) => {
+        if (e.key !== " ") {
+            return;
+        }
+        e.preventDefault();
+        if (!e.repeat) {
+            shuffleButtonAction();
+        }
+    });
 }
 
 function shuffleButtonAction() {
@@ -285,16 +298,14 @@ function waitForCardImages() {
 function showHand() {
     hand = drawHand();
 
-    getById("card0").src = toPath(hand.faceDown);
-    getById("card1").src = toPath(hand.faceUp[0]);
-    getById("card2").src = toPath(hand.faceUp[1]);
-    getById("card3").src = toPath(hand.faceUp[2]);
-    getById("card4").src = toPath(hand.faceUp[3]);
+    showCard("card0", hand.faceDown);
+    hand.faceUp.forEach((card, i) => showCard(`card${i + 1}`, card));
     getById("answer-hand").innerHTML = shortHandToString(hand);
 
     const answerButtonsHtml = deckGroupedBySuit()
         [hand.faceDown.suitOrdinal - 1].map(
-            (card) => `<img class="answer-card-button" data-suit="${card.suit}" data-rank="${card.rank}" src="${toPath(card)}">`,
+            (card) =>
+                `<button type="button" class="answer-card-button" data-suit="${card.suit}" data-rank="${card.rank}"><img src="${toPath(card)}" alt="${cardName(card)}"></button>`,
         )
         .join(" ");
 
@@ -307,15 +318,15 @@ function addAnswerButtonListener() {
 }
 
 function answerButtonAction(e) {
-    if (state !== states.RUNNING || !e.target.hasAttribute("data-suit")) {
+    const button = e.target.closest("button[data-suit]");
+    if (state !== states.RUNNING || !button) {
         return;
     }
     state = states.ANSWERED;
 
     const elapsed = stopTimer();
 
-    const suit = e.target.dataset["suit"];
-    const rank = e.target.dataset["rank"];
+    const { suit, rank } = button.dataset;
     const card = createCard(suit, rank);
 
     const correct = hand.faceDown.suit === suit && hand.faceDown.rank === rank;

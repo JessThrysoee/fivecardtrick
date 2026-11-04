@@ -145,8 +145,11 @@ h1 {
 
 .answer-card-button {
     display: inline-block;
-    width: 44px;
-    height: 62px;
+    box-sizing: content-box;
+    padding: 0;
+    overflow: hidden;
+    background: none;
+    vertical-align: top;
     color: #fff;
     border: solid 1px #ffffff;
     border-radius: 4px;
@@ -156,6 +159,12 @@ h1 {
     transition-duration: 0.2s;
     user-select: none;
     cursor: pointer;
+}
+
+.answer-card-button img {
+    display: block;
+    width: 44px;
+    height: 62px;
 }
 
 .answer-card-button:hover {
@@ -169,6 +178,9 @@ h1 {
 }
 
 .shuffle-button {
+    box-sizing: content-box;
+    padding: 0;
+    font: inherit;
     box-shadow: inset 0px 1px 0px 0px #ffffff;
     background-color: #ededed;
     border-top-left-radius: 6px;

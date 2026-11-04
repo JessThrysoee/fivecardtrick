@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
     <head>
         <meta charset="utf-8" />
         <meta
@@ -24,14 +24,14 @@
             <div class="card-container">
                 <div id="faceDown" class="flip-container revealed">
                     <div id="flipper" class="flipper">
-                        <div class="front">
+                        <div class="front" aria-hidden="true">
                             <div class="card facedown">
-                                <img src="img/back.svg" />
+                                <img src="img/back.svg" alt="Face-down card" />
                             </div>
                         </div>
                         <div class="back">
                             <div class="card">
-                                <img id="card0" src="img/clear.gif" />
+                                <img id="card0" src="img/clear.gif" alt="" />
                             </div>
                             <div id="answer-hand" class="answer-hand"></div>
                         </div>
@@ -40,23 +40,23 @@
 
                 <div class="stack">
                     <div class="card one">
-                        <img id="card1" src="img/clear.gif" />
+                        <img id="card1" src="img/clear.gif" alt="" />
                     </div>
                     <div class="card two">
-                        <img id="card2" src="img/clear.gif" />
+                        <img id="card2" src="img/clear.gif" alt="" />
                     </div>
                     <div class="card three">
-                        <img id="card3" src="img/clear.gif" />
+                        <img id="card3" src="img/clear.gif" alt="" />
                     </div>
                     <div class="card four">
-                        <img id="card4" src="img/clear.gif" />
+                        <img id="card4" src="img/clear.gif" alt="" />
                     </div>
                 </div>
             </div>
 
             <div class="button-container">
-                <div id="shuffle-button" class="shuffle-button" title="keyboard shortcut: spacebar">New Game</div>
-                <div id="answer-cards" class="answer-cards"></div>
+                <button type="button" id="shuffle-button" class="shuffle-button" title="keyboard shortcut: spacebar">New Game</button>
+                <div id="answer-cards" class="answer-cards" role="group" aria-label="Pick the hidden card"></div>
             </div>
 
             <div class="statistics">

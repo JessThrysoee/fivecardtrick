@@ -168,8 +168,6 @@ function drawHand() {
         case 6:
             addTernaryCards(2, 1, 0);
             break;
-        default:
-            console.log("impossible");
     }
 
     return hand;

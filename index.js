@@ -205,7 +205,7 @@ function addHandToStatistics(hand, elapsed, card, correct) {
     const table = getById("statistics-list");
     const tr = document.createElement("tr");
     tr.innerHTML = `<td>${longHandToString(hand)}</td><td>${formatElapsed(elapsed)}</td><td>${card.html}</td><td>${correctSymbol}</td>`;
-    table.appendChild(tr, table.firstChild);
+    table.prepend(tr);
 }
 
 function clearStatistics() {

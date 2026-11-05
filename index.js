@@ -255,6 +255,12 @@ function shuffleButtonAction() {
 }
 
 function flipThenStartRound() {
+    if (reducedMotion.matches) {
+        toggleFaceDownCard();
+        startRound();
+        return;
+    }
+
     const flipper = getById("flipper");
     let started = false;
 
@@ -370,6 +376,7 @@ let elapsedArray = [];
 let bestAverageElapsed = loadBestAverageElapsed();
 
 const flipFallbackMs = 1000;
+const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
 const states = {
     NEW: 0,

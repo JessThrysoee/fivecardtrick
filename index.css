@@ -37,6 +37,12 @@ body {
     border-bottom: 1px solid red;
 }
 
+@supports not (width: 1cqw) {
+    .content {
+        --u: min(1px, (100vw - 2 * var(--pad)) / 900);
+    }
+}
+
 .head {
     display: flex;
     justify-content: space-between;

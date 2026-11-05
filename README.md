@@ -1,6 +1,6 @@
 # Fitch Cheney's Five Card Trick
 
-Learn Fitch Cheney's five-card trick, then see how fast you can do the magician's part. Play it at https://thrysoee.dk/fivecardtrick/.
+Learn Fitch Cheney's five-card trick, then see how fast you can do the magician's part. Play it at [thrysoee.dk/fivecardtrick/](https://thrysoee.dk/fivecardtrick/).
 
 ## The trick
 

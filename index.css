@@ -380,6 +380,10 @@ td:first-of-type {
 }
 
 .how-code {
+    display: grid;
+    grid-template-columns: auto auto;
+    column-gap: 24px;
+    width: fit-content;
     margin: 4px 0;
 }
 

@@ -387,6 +387,16 @@ td:first-of-type {
     margin: 4px 0;
 }
 
+.spark {
+    width: 20px;
+    height: 12px;
+    fill: none;
+    stroke: #777777;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+
 /* narrow screens */
 
 @media (max-width: 860px) {

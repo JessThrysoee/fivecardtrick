@@ -389,11 +389,16 @@ td:first-of-type {
 
 .how-sums {
     display: grid;
-    grid-template-columns: repeat(4, auto);
+    grid-template-columns: repeat(14, auto);
+    justify-items: center;
     column-gap: 0.3em;
     width: fit-content;
     margin-top: 12px;
     white-space: nowrap;
+}
+
+.how-sums > div {
+    display: contents;
 }
 
 .spark {

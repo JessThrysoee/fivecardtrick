@@ -1,7 +1,7 @@
 const ranks = ["ACE", "2", "3", "4", "5", "6", "7", "8", "9", "10", "JACK", "QUEEN", "KING"];
 const rankKeys = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "0", "J", "Q", "K"];
-const suits = ["DIAMONDS", "HEARTS", "SPADES", "CLUBS"];
-const suitChars = ["♦", "♥", "♠", "♣"];
+const suits = ["CLUBS", "DIAMONDS", "HEARTS", "SPADES"];
+const suitChars = ["♣", "♦", "♥", "♠"];
 const ternary = ["L", "M", "H"];
 const ternaryPermutations = [
     [0, 1, 2],

@@ -296,6 +296,18 @@ td:first-of-type {
     text-align: left;
 }
 
+.statistics-list td.hand {
+    width: 1px;
+    padding-left: 0.15em;
+    padding-right: 0.15em;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.statistics-list td.hand:first-child {
+    padding-left: 4px;
+}
+
 /* end game alerts */
 
 .alert {

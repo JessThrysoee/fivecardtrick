@@ -144,9 +144,14 @@ function showAlert(id) {
     });
 }
 
-function longHandToString(hand) {
-    const cards = hand.faceUp.map((card) => card.html).join(" ");
-    return `<span class="hand-cards">${cards} =</span> ${shortHandParts(hand).join(" ")}`;
+function handCells(hand) {
+    const first = hand.faceUp[0].html;
+    const cards = [...hand.faceUp.map((card) => card.html), "="];
+    const sum = [first, "+", hand.ternary.join(""), "=", first, "+", hand.offset, "=", hand.faceDown.html];
+    return [
+        ...cards.map((token) => `<td class="hand hand-cards">${token}</td>`),
+        ...sum.map((token) => `<td class="hand">${token}</td>`),
+    ].join("");
 }
 
 function shortHandParts(hand) {
@@ -198,7 +203,7 @@ function addHandToStatistics(hand, elapsed, card, correct) {
 
     const table = getById("statistics-list");
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${longHandToString(hand)}</td><td>${formatElapsed(elapsed)}</td><td>${card.html}</td><td>${correctSymbol}</td>`;
+    tr.innerHTML = `${handCells(hand)}<td>${formatElapsed(elapsed)}</td><td>${card.html}</td><td>${correctSymbol}</td>`;
     table.prepend(tr);
 }
 

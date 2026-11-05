@@ -342,6 +342,47 @@ td:first-of-type {
     color: red;
 }
 
+/* how it works */
+
+.how {
+    margin-top: 28px;
+    line-height: 1.5;
+}
+
+.how summary {
+    width: fit-content;
+    color: #777777;
+    cursor: pointer;
+}
+
+.how p,
+.how ol {
+    margin: 12px 0 0;
+}
+
+.how ol {
+    padding-left: 1.5em;
+}
+
+.how li + li {
+    margin-top: 8px;
+}
+
+.how-cards {
+    display: flex;
+    gap: 4px;
+    margin-top: 12px;
+}
+
+.how-cards img {
+    border: solid 1px #c0c0c0;
+    border-radius: 4px;
+}
+
+.how-code {
+    margin: 4px 0;
+}
+
 /* narrow screens */
 
 @media (max-width: 860px) {

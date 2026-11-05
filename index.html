@@ -90,6 +90,34 @@
                 </div>
                 <table id="statistics-list" class="statistics-list"></table>
             </div>
+
+            <details class="how">
+                <summary>How does it work?</summary>
+                <p>The four face-up cards tell you the hidden one.</p>
+                <div class="how-cards">
+                    <img src="img/back.svg" alt="Hidden card" width="44" height="62" loading="lazy" />
+                    <img src="img/diamonds/5d.svg" alt="5 of diamonds" width="44" height="62" loading="lazy" />
+                    <img src="img/clubs/7c.svg" alt="7 of clubs" width="44" height="62" loading="lazy" />
+                    <img src="img/spades/11s.svg" alt="Jack of spades" width="44" height="62" loading="lazy" />
+                    <img src="img/hearts/2h.svg" alt="2 of hearts" width="44" height="62" loading="lazy" />
+                </div>
+                <ol>
+                    <li><b>Suit.</b> The first card has the same suit as the hidden one: <span style="color: red">♦</span>.</li>
+                    <li>
+                        <b>Number.</b> Rank the last three cards low, middle and high. Equal ranks go by suit,
+                        <span style="color: red">♦</span>&nbsp;&lt;&nbsp;<span style="color: red">♥</span
+                        >&nbsp;&lt;&nbsp;♠&nbsp;&lt;&nbsp;♣. Their order gives a number:
+                        <div class="how-code">LMH&nbsp;1 · LHM&nbsp;2 · MLH&nbsp;3 · MHL&nbsp;4 · HLM&nbsp;5 · HML&nbsp;6</div>
+                        The first letter picks the pair. If the other two go up, take the odd number; if they go down, the even one.
+                    </li>
+                    <li><b>Add.</b> Count forward from the first card. After K comes A.</li>
+                </ol>
+                <p>
+                    <span style="color: red">♦</span>5 + MHL = <span style="color: red">♦</span>5 + 4 =
+                    <span style="color: red">♦</span>9<br />
+                    ♠J + 4 = ♠2 (J Q K A 2)
+                </p>
+            </details>
         </main>
         <script src="index.js"></script>
     </body>

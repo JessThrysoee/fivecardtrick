@@ -413,6 +413,19 @@ td:first-of-type {
     display: contents;
 }
 
+.how-source {
+    display: block;
+    width: fit-content;
+    margin-left: auto;
+    font-size: 13px;
+    color: #777777;
+    text-decoration: none;
+}
+
+.how-source:hover {
+    text-decoration: underline;
+}
+
 .spark {
     width: 20px;
     height: 12px;

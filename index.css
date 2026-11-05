@@ -193,12 +193,16 @@ h1 {
     height: 62px;
 }
 
-.answer-card-button:hover {
+.answer-card-button[aria-disabled="true"] {
+    cursor: default;
+}
+
+.answer-card-button:not([aria-disabled="true"]):hover {
     border: solid 1px #c0c0c0;
     text-decoration: none;
 }
 
-.answer-card-button:active {
+.answer-card-button:not([aria-disabled="true"]):active {
     box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
     border: solid 1px #a0a0a0;
 }

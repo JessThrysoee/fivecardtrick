@@ -1,4 +1,5 @@
 const ranks = ["ACE", "2", "3", "4", "5", "6", "7", "8", "9", "10", "JACK", "QUEEN", "KING"];
+const rankKeys = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "0", "J", "Q", "K"];
 const suits = ["DIAMONDS", "HEARTS", "SPADES", "CLUBS"];
 const suitChars = ["♦", "♥", "♠", "♣"];
 const ternary = ["L", "M", "H"];
@@ -124,10 +125,13 @@ function cardName(card) {
     return `${rank} of ${card.suit.toLowerCase()}`;
 }
 
-function showCard(id, card) {
-    const img = getById(id);
+function setCardImage(img, card) {
     img.src = toPath(card);
     img.alt = cardName(card);
+}
+
+function showCard(id, card) {
+    setCardImage(getById(id), card);
 }
 
 function setShuffleButtonLabel(label) {
@@ -210,14 +214,29 @@ function addShuffleButtonListener() {
     getById("shuffle-button").addEventListener("click", shuffleButtonAction, false);
 }
 
-function addSpaceKeyListener() {
+function addKeyboardListener() {
     document.addEventListener("keydown", (e) => {
-        if (e.key !== " ") {
+        if (e.ctrlKey || e.metaKey || e.altKey) {
             return;
         }
-        e.preventDefault();
-        if (!e.repeat) {
-            shuffleButtonAction();
+
+        if (e.key === " ") {
+            e.preventDefault();
+            if (e.repeat) {
+                return;
+            }
+            const focusedAnswerButton = e.target.closest(".answer-card-button");
+            if (focusedAnswerButton && state === states.RUNNING) {
+                answer(focusedAnswerButton);
+            } else {
+                shuffleButtonAction();
+            }
+            return;
+        }
+
+        const rankIndex = rankKeys.indexOf(e.key.toUpperCase());
+        if (rankIndex !== -1 && !e.repeat) {
+            answer(answerButtons()[rankIndex]);
         }
     });
 }
@@ -257,7 +276,7 @@ function flipThenStartRound() {
 async function startRound() {
     showHand();
     await waitForCardImages();
-    state = states.RUNNING;
+    setState(states.RUNNING);
     updateShufflesCurOfMax();
     startTimer();
 }
@@ -284,15 +303,24 @@ function showHand() {
         .map((part) => `<span class="hand-part">${part}</span>`)
         .join(" ");
 
-    const answerButtonsHtml = deckGroupedBySuit()
-        [hand.faceDown.suitOrdinal - 1].map(
-            (card) =>
-                `<button type="button" class="answer-card-button" data-suit="${card.suit}" data-rank="${card.rank}"><img src="${toPath(card)}" alt="${cardName(card)}"></button>`,
+    const suitCards = deckGroupedBySuit()[hand.faceDown.suitOrdinal - 1];
+    answerButtons().forEach((button, i) => {
+        button.dataset.suit = suitCards[i].suit;
+        setCardImage(button.querySelector("img"), suitCards[i]);
+    });
+}
+
+function createAnswerButtons() {
+    getById("answer-cards").innerHTML = ranks
+        .map(
+            (rank, i) =>
+                `<button type="button" class="answer-card-button" data-rank="${rank}" aria-keyshortcuts="${rankKeys[i]}" aria-disabled="true"><img alt=""></button>`,
         )
         .join(" ");
+}
 
-    const answerCards = getById("answer-cards");
-    answerCards.innerHTML = answerButtonsHtml;
+function answerButtons() {
+    return getById("answer-cards").querySelectorAll(".answer-card-button");
 }
 
 function addAnswerButtonListener() {
@@ -300,11 +328,17 @@ function addAnswerButtonListener() {
 }
 
 function answerButtonAction(e) {
-    const button = e.target.closest("button[data-suit]");
-    if (state !== states.RUNNING || !button) {
+    const button = e.target.closest(".answer-card-button");
+    if (button) {
+        answer(button);
+    }
+}
+
+function answer(button) {
+    if (state !== states.RUNNING) {
         return;
     }
-    state = states.ANSWERED;
+    setState(states.ANSWERED);
 
     const elapsed = stopTimer();
 
@@ -347,6 +381,12 @@ const states = {
 };
 let state = states.NEW;
 
+function setState(newState) {
+    state = newState;
+    const disabled = String(state !== states.RUNNING);
+    answerButtons().forEach((button) => button.setAttribute("aria-disabled", disabled));
+}
+
 function loadBestAverageElapsed() {
     let best;
     try {
@@ -364,7 +404,7 @@ function saveBestAverageElapsed(best) {
 }
 
 function gameNew() {
-    state = states.NEW;
+    setState(states.NEW);
 
     curShuffles = 0;
     elapsedArray = [];
@@ -379,13 +419,13 @@ function gameNew() {
 }
 
 function gameDealing() {
-    state = states.DEALING;
+    setState(states.DEALING);
     setShuffleButtonLabel("Shuffle");
     curShuffles += 1;
 }
 
 function gameWon() {
-    state = states.WON;
+    setState(states.WON);
 
     setShuffleButtonLabel("New Game");
 
@@ -402,16 +442,17 @@ function gameWon() {
 }
 
 function gameOver() {
-    state = states.GAMEOVER;
+    setState(states.GAMEOVER);
 
     setShuffleButtonLabel("New Game");
     showAlert("game-over");
 }
 
 function main() {
+    createAnswerButtons();
     addAnswerButtonListener();
     addShuffleButtonListener();
-    addSpaceKeyListener();
+    addKeyboardListener();
     preloadCardImages();
 
     gameNew();

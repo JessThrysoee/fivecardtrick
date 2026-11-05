@@ -387,6 +387,15 @@ td:first-of-type {
     margin: 4px 0;
 }
 
+.how-sums {
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    column-gap: 0.3em;
+    width: fit-content;
+    margin-top: 12px;
+    white-space: nowrap;
+}
+
 .spark {
     width: 20px;
     height: 12px;
@@ -470,7 +479,8 @@ td:first-of-type {
         font-size: 14px;
     }
 
-    .statistics-list {
+    .statistics-list,
+    .how-sums {
         font-size: 13px;
     }
 }

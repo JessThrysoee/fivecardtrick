@@ -460,11 +460,12 @@ function main() {
     addAnswerButtonListener();
     addShuffleButtonListener();
     addKeyboardListener();
-    preloadCardImages();
 
     gameNew();
     showHand();
     enableFlipAnimation();
+
+    window.addEventListener("load", preloadCardImages, { once: true });
 }
 
 function enableFlipAnimation() {
